@@ -8,6 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useToast } from '@/hooks/use-toast';
 import { clearAllData, exportData } from '@/lib/storage';
+import { jsPDF } from 'jspdf'; // ← added jsPDF import
 
 const Settings: React.FC = () => {
   const { 
@@ -21,20 +22,42 @@ const Settings: React.FC = () => {
   
   const { toast } = useToast();
 
-  const handleExportData = () => {
-    const success = exportData();
-    if (success) {
-      toast({
-        description: "Your data has been exported successfully!",
-      });
-    } else {
-      toast({
-        title: "Export failed",
-        description: "Could not export your data. Please try again.",
-        variant: "destructive"
-      });
+const handleExportData = () => {
+  const jsonData = exportData(); // now returns array
+  if (!jsonData.length) {
+    toast({
+      title: "Export failed",
+      description: "No data available to export.",
+      variant: "destructive"
+    });
+    return;
+  }
+
+  const doc = new jsPDF();
+  doc.text("MindMate AI - Data Export", 10, 10);
+  let y = 20;
+
+  jsonData.forEach((item: any, index: number) => {
+    doc.text(`Entry #${index + 1}`, 10, y); y += 6;
+    if (item.date) { doc.text(`Date: ${item.date}`, 10, y); y += 6; }
+    if (item.mood) { doc.text(`Mood: ${item.mood}`, 10, y); y += 6; }
+    if (item.journal) {
+      const lines = doc.splitTextToSize(`Journal: ${item.journal}`, 180);
+      doc.text(lines, 10, y);
+      y += lines.length * 6 + 4;
     }
-  };
+    y += 4;
+    if (y > 280) { doc.addPage(); y = 10; }
+  });
+
+  doc.save("mindmate-data.pdf");
+
+  toast({
+    description: "Your data has been exported successfully as PDF!",
+  });
+};
+
+
 
   const handleClearData = () => {
     if (confirm("Are you sure you want to clear all your data? This action cannot be undone.")) {
@@ -142,7 +165,7 @@ const Settings: React.FC = () => {
               <p className="text-sm text-muted-foreground">Download a copy of all your journal entries and mood data</p>
             </div>
             <Button variant="outline" onClick={handleExportData}>
-              <i className="fas fa-download mr-1"></i> Export
+              <i className="fas fa-download mr-1"></i> Export as PDF
             </Button>
           </div>
           

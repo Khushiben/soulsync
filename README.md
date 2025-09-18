@@ -1,8 +1,8 @@
-# Vihaara - Mindful Digital Sanctuary
+# Dr. Mind - Mindful Digital Sanctuary
 
-A privacy-focused mental wellness application that serves as your personal sanctuary for mental clarity and emotional well-being. Vihaara provides AI-powered journaling insights, mood tracking, an intelligent chat companion, and wellness resources while keeping all your data completely private and stored locally on your device.
+A privacy-focused mental wellness application that serves as your personal sanctuary for mental clarity and emotional well-being. Dr. Mind provides AI-powered journaling insights, mood tracking, an intelligent chat companion, and wellness resources while keeping all your data completely private and stored locally on your device.
 
-## What Makes Vihaara Special
+## What Makes Dr. Mind Special
 
 **Privacy First**: Your personal data never leaves your device. All journals, mood entries, and conversations stay completely private.
 
@@ -42,8 +42,8 @@ You need these installed on your computer:
 ### Step 2: Get the Code
 ```bash
 # Download the project
-git clone https://github.com/AishwaryaChandel27/Vihaara--AI-powered-mental-wellness-and-healthcare-app
-cd vihaara
+git clone https://github.com/AishwaryaChandel27/Dr. Mind--AI-powered-mental-wellness-and-healthcare-app
+cd Dr. Mind
 
 # Install all required packages
 npm install
@@ -84,7 +84,7 @@ Open your browser and go to: `http://localhost:5000`
 
 That's it! You now have your personal wellness sanctuary running.
 
-## How to Use Vihaara
+## How to Use Dr. Mind
 
 ### Using the Journal
 1. Click "Journal" in the sidebar
@@ -160,7 +160,7 @@ In the Settings page, you can adjust:
 - **Theme**: Switch between light and dark modes
 
 ### Development Setup
-If you want to modify or contribute to Vihaara:
+If you want to modify or contribute to Dr. Mind:
 
 ```bash
 # Development mode with hot reloading
@@ -187,7 +187,7 @@ The app uses these internal endpoints:
 
 ## Contributing
 
-Want to help improve Vihaara? Here's how:
+Want to help improve Dr. Mind? Here's how:
 
 1. Fork the project on GitHub
 2. Create a feature branch: `git checkout -b amazing-feature`
@@ -218,4 +218,4 @@ This project is open source under the MIT License. You're free to use, modify, a
 
 ---
 
-**Vihaara** - Your personal, private sanctuary for mental wellness and emotional well-being.
+**Dr. Mind** - Your personal, private sanctuary for mental wellness and emotional well-being.

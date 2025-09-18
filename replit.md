@@ -1,8 +1,8 @@
-# Vihaara - Mindful Digital Sanctuary
+# Dr. Mind - Mindful Digital Sanctuary
 
 ## Overview
 
-Vihaara is a privacy-focused mental wellness application that serves as a personal sanctuary for mental clarity and emotional well-being. The application provides AI-powered journaling insights, mood tracking, chat companion, and wellness resources while keeping all user data locally stored on the device.
+Dr. Mind is a privacy-focused mental wellness application that serves as a personal sanctuary for mental clarity and emotional well-being. The application provides AI-powered journaling insights, mood tracking, chat companion, and wellness resources while keeping all user data locally stored on the device.
 
 ## System Architecture
 

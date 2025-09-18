@@ -1,3 +1,5 @@
+import 'dotenv/config';
+console.log("Gemini API Key from env:", process.env.GEMINI_API_KEY ? "Loaded ✅" : "Missing ❌");
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -56,15 +58,17 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
+  // ALWAYS serve the app on port 5001
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+  const port = 5001;
+  server.listen(
+    {
+      port,
+      host: "127.0.0.1", // ✅ use localhost instead of 0.0.0.0 for Windows
+    },
+    () => {
+      log(`serving on http://localhost:${port}`);
+    }
+  );
 })();

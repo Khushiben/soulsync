@@ -29,7 +29,7 @@ const Home: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold font-heading mb-2 bg-gradient-to-r from-primary to-secondary inline-block text-transparent bg-clip-text">Welcome to Vihaara</h1>
+        <h1 className="text-3xl md:text-4xl font-bold font-heading mb-2 bg-gradient-to-r from-primary to-secondary inline-block text-transparent bg-clip-text">Welcome to Dr. Mind</h1>
         <p className="text-lg text-muted-foreground">Your sanctuary for mental clarity and emotional well-being</p>
       </div>
       

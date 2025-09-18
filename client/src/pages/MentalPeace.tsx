@@ -1,32 +1,52 @@
-import React, { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useSettings } from '@/contexts/SettingsContext';
-import { getAiMentalPeaceTechnique } from '@/lib/openai';
+import React, { useState, useRef } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSettings } from "@/contexts/SettingsContext";
+import { getAiMentalPeaceTechnique } from "@/lib/openai";
 
 const MentalPeace: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [technique, setTechnique] = useState<string>('');
-  const [currentCategory, setCurrentCategory] = useState<string>('mindfulness');
+  const [technique, setTechnique] = useState<string>("");
+  const [currentCategory, setCurrentCategory] = useState<string>("mindfulness");
+  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
+  const [speechIndex, setSpeechIndex] = useState<number>(0);
+  const [textChunks, setTextChunks] = useState<string[]>([]);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const { aiTone } = useSettings();
 
   const categories = [
-    { id: 'mindfulness', name: 'Mindfulness', icon: 'brain', color: 'text-purple-500', bgColor: 'bg-purple-100 dark:bg-purple-900/20' },
-    { id: 'stress', name: 'Stress Relief', icon: 'wind', color: 'text-blue-500', bgColor: 'bg-blue-100 dark:bg-blue-900/20' },
-    { id: 'breathing', name: 'Breathing', icon: 'lungs', color: 'text-teal-500', bgColor: 'bg-teal-100 dark:bg-teal-900/20' },
-    { id: 'affirmations', name: 'Affirmations', icon: 'comment', color: 'text-amber-500', bgColor: 'bg-amber-100 dark:bg-amber-900/20' },
-    { id: 'meditation', name: 'Meditation', icon: 'om', color: 'text-indigo-500', bgColor: 'bg-indigo-100 dark:bg-indigo-900/20' },
+    { id: "mindfulness", name: "Mindfulness", icon: "brain", color: "text-purple-500", bgColor: "bg-purple-100 dark:bg-purple-900/20" },
+    { id: "stress", name: "Stress Relief", icon: "wind", color: "text-blue-500", bgColor: "bg-blue-100 dark:bg-blue-900/20" },
+    { id: "breathing", name: "Breathing", icon: "lungs", color: "text-teal-500", bgColor: "bg-teal-100 dark:bg-teal-900/20" },
+    { id: "affirmations", name: "Affirmations", icon: "comment", color: "text-amber-500", bgColor: "bg-amber-100 dark:bg-amber-900/20" },
+    { id: "meditation", name: "Meditation", icon: "om", color: "text-indigo-500", bgColor: "bg-indigo-100 dark:bg-indigo-900/20" },
   ];
+
+  const chunkSize = 150; // characters per chunk
+
+  const prepareChunks = (text: string) => {
+    const chunks: string[] = [];
+    let start = 0;
+    while (start < text.length) {
+      chunks.push(text.slice(start, start + chunkSize));
+      start += chunkSize;
+    }
+    setTextChunks(chunks);
+    setSpeechIndex(0);
+  };
 
   const fetchTechnique = async () => {
     setIsLoading(true);
+    stopSpeaking();
     try {
       const result = await getAiMentalPeaceTechnique(currentCategory, aiTone);
       setTechnique(result);
+      prepareChunks(result);
     } catch (error) {
-      console.error('Error fetching mental peace technique:', error);
-      setTechnique('Sorry, I could not generate a mental peace technique at this time. Please try again later.');
+      console.error("Error fetching mental peace technique:", error);
+      setTechnique("Sorry, I could not generate a mental peace technique at this time. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -34,13 +54,78 @@ const MentalPeace: React.FC = () => {
 
   const handleCategoryChange = (category: string) => {
     setCurrentCategory(category);
-    setTechnique(''); // Clear previous technique when changing categories
+    setTechnique("");
+    stopSpeaking();
+  };
+
+  // Text-to-Speech with pause/resume
+  const speakText = () => {
+    if (!("speechSynthesis" in window)) {
+      alert("Sorry, your browser doesn't support text-to-speech.");
+      return;
+    }
+
+    if (isSpeaking) {
+      stopSpeaking();
+      return;
+    }
+
+    if (textChunks.length === 0 && technique) {
+      prepareChunks(technique);
+    }
+
+    const speakChunk = (index: number) => {
+      if (index >= textChunks.length) {
+        setIsSpeaking(false);
+        setSpeechIndex(0);
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(textChunks[index]);
+      utterance.lang = "en-US";
+      utterance.rate = 1;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => {
+        setSpeechIndex(index + 1);
+        if (isSpeaking && !isPaused) speakChunk(index + 1);
+      };
+
+      utteranceRef.current = utterance;
+      window.speechSynthesis.speak(utterance);
+    };
+
+    speakChunk(speechIndex);
+  };
+
+  const stopSpeaking = () => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      setIsPaused(false);
+    }
+  };
+
+  const pauseSpeaking = () => {
+    if ("speechSynthesis" in window && isSpeaking && !isPaused) {
+      window.speechSynthesis.pause();
+      setIsPaused(true);
+    }
+  };
+
+  const resumeSpeaking = () => {
+    if ("speechSynthesis" in window && isPaused) {
+      window.speechSynthesis.resume();
+      setIsPaused(false);
+    }
   };
 
   return (
     <div className="max-w-4xl mx-auto">
       <h1 className="text-2xl md:text-3xl font-bold mb-6">Mental Peace</h1>
-      
+
       <Card className="mb-6">
         <CardContent className="p-6">
           <div className="flex items-center mb-6">
@@ -49,11 +134,11 @@ const MentalPeace: React.FC = () => {
             </div>
             <h2 className="ml-4 text-xl font-semibold">Inner Calm Techniques</h2>
           </div>
-          
+
           <p className="text-muted-foreground mb-6">
             Discover techniques for cultivating mental peace and emotional balance. Select a category to receive guidance that can help bring tranquility to your busy life.
           </p>
-          
+
           <Tabs defaultValue={currentCategory} onValueChange={handleCategoryChange} className="w-full">
             <TabsList className="grid grid-cols-2 md:grid-cols-5 mb-6">
               {categories.map((category) => (
@@ -63,7 +148,7 @@ const MentalPeace: React.FC = () => {
                 </TabsTrigger>
               ))}
             </TabsList>
-            
+
             {categories.map((category) => (
               <TabsContent key={category.id} value={category.id} className="pt-2">
                 <div className="flex items-center mb-4">
@@ -72,15 +157,15 @@ const MentalPeace: React.FC = () => {
                   </div>
                   <h3 className="ml-2 font-medium">{category.name}</h3>
                 </div>
-                
+
                 <p className="text-sm text-muted-foreground mb-4">
-                  {category.id === 'mindfulness' && 'Present-moment awareness practices to calm your mind.'}
-                  {category.id === 'stress' && 'Techniques to reduce stress and anxiety in daily life.'}
-                  {category.id === 'breathing' && 'Breathing exercises to center yourself and find calm.'}
-                  {category.id === 'affirmations' && 'Positive statements to transform your mindset and outlook.'}
-                  {category.id === 'meditation' && 'Guided practices to deepen your awareness and inner peace.'}
+                  {category.id === "mindfulness" && "Present-moment awareness practices to calm your mind."}
+                  {category.id === "stress" && "Techniques to reduce stress and anxiety in daily life."}
+                  {category.id === "breathing" && "Breathing exercises to center yourself and find calm."}
+                  {category.id === "affirmations" && "Positive statements to transform your mindset and outlook."}
+                  {category.id === "meditation" && "Guided practices to deepen your awareness and inner peace."}
                 </p>
-                
+
                 <Button onClick={fetchTechnique} disabled={isLoading}>
                   {isLoading ? (
                     <>
@@ -99,27 +184,42 @@ const MentalPeace: React.FC = () => {
           </Tabs>
         </CardContent>
       </Card>
-      
+
       {technique && (
         <Card className="mb-6 border-t-4 border-t-primary">
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold mb-3 flex items-center">
               <i className="fas fa-feather-alt text-primary mr-2"></i>
-              {categories.find(c => c.id === currentCategory)?.name} Practice
+              {categories.find((c) => c.id === currentCategory)?.name} Practice
             </h3>
-            <div className="text-muted-foreground whitespace-pre-wrap">
-              {technique}
+            <div className="text-muted-foreground whitespace-pre-wrap mb-4">{technique}</div>
+
+            {/* ✅ Play/Stop/Pause/Resume TTS */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              <Button onClick={speakText}>
+                <i className={`fas ${isSpeaking ? "fa-stop" : "fa-play"} mr-2`}></i>
+                {isSpeaking ? "Stop" : "Play"}
+              </Button>
+              <Button onClick={pauseSpeaking} disabled={!isSpeaking || isPaused}>
+                <i className="fas fa-pause mr-2"></i> Pause
+              </Button>
+              <Button onClick={resumeSpeaking} disabled={!isPaused}>
+                <i className="fas fa-play mr-2"></i> Resume
+              </Button>
             </div>
-            <div className="text-xs text-muted-foreground mt-4 flex items-center">
+
+            <div className="text-xs text-muted-foreground mt-2 flex items-center">
               <i className="fas fa-info-circle mr-1"></i>
               <span>Try to practice this technique regularly for the best results.</span>
             </div>
           </CardContent>
         </Card>
       )}
-      
+
       <div className="text-center text-sm text-muted-foreground mt-8">
-        <p><i className="fas fa-om text-indigo-400 mr-1"></i> For persistent mental health concerns, please consult with a qualified professional.</p>
+        <p>
+          <i className="fas fa-om text-indigo-400 mr-1"></i> For persistent mental health concerns, please consult with a qualified professional.
+        </p>
       </div>
     </div>
   );

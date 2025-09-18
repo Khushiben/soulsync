@@ -6,13 +6,13 @@ const About: React.FC = () => {
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center mb-6 gap-3">
         <i className="fas fa-om text-primary text-3xl"></i>
-        <h1 className="text-2xl md:text-3xl font-bold font-heading bg-gradient-to-r from-primary to-secondary inline-block text-transparent bg-clip-text">🧘‍♀️ About Vihaara</h1>
+        <h1 className="text-2xl md:text-3xl font-bold font-heading bg-gradient-to-r from-primary to-secondary inline-block text-transparent bg-clip-text">🧘‍♀️ About Dr. Mind</h1>
       </div>
       
       <Card className="mb-6 border border-primary/10 shadow-md">
         <CardContent className="p-6">
           <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-            Vihaara — derived from Sanskrit, meaning lifestyle or mindful dwelling — is your personal sanctuary for mental clarity and emotional well-being. Inspired by ancient concepts of balance and modern intelligence, Vihaara blends the wisdom of mindful living with the power of advanced AI.
+          Dr.Mind — derived from Sanskrit, meaning lifestyle or mindful dwelling — is your personal sanctuary for mental clarity and emotional well-being. Inspired by ancient concepts of balance and modern intelligence, Dr. Mind blends the wisdom of mindful living with the power of advanced AI.
           </p>
           
           <h2 className="text-xl font-semibold font-heading mb-4">Our Mission</h2>
@@ -21,7 +21,7 @@ const About: React.FC = () => {
           </p>
           
           <p className="text-muted-foreground mb-6">
-            Whether you're journaling your thoughts, checking in on your mood, or seeking health and wellness tips, Vihaara is designed to meet you with calm, insight, and compassion — every single day.
+            Whether you're journaling your thoughts, checking in on your mood, or seeking health and wellness tips, Dr. Mind is designed to meet you with calm, insight, and compassion — every single day.
           </p>
           
           <div className="flex items-center space-x-3 mb-4">
@@ -54,7 +54,7 @@ const About: React.FC = () => {
         <CardContent className="p-6">
           <h2 className="text-xl font-semibold font-heading mb-5 flex items-center">
             <div className="w-2 h-8 bg-gradient-to-b from-primary to-secondary rounded-full mr-2"></div>
-            How Vihaara Works
+            How Dr. Mind Works
           </h2>
           
           <div className="space-y-6">
@@ -62,7 +62,7 @@ const About: React.FC = () => {
               <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-inner">1</div>
               <div className="ml-4">
                 <h3 className="font-medium font-heading">Journal Your Thoughts</h3>
-                <p className="text-sm text-muted-foreground">Write down your feelings and experiences. Vihaara's AI will analyze the emotions and provide insights.</p>
+                <p className="text-sm text-muted-foreground">Write down your feelings and experiences. Dr. Mind's AI will analyze the emotions and provide insights.</p>
               </div>
             </div>
             
@@ -78,7 +78,7 @@ const About: React.FC = () => {
               <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-inner">3</div>
               <div className="ml-4">
                 <h3 className="font-medium font-heading">Chat with Your AI</h3>
-                <p className="text-sm text-muted-foreground">Have supportive conversations with Vihaara's AI assistant for guidance and mental wellness tips.</p>
+                <p className="text-sm text-muted-foreground">Have supportive conversations with Dr. Mind's AI assistant for guidance and mental wellness tips.</p>
               </div>
             </div>
             
@@ -100,7 +100,7 @@ const About: React.FC = () => {
             Privacy Commitment
           </h2>
           <p className="text-muted-foreground mb-6">
-            Vihaara runs entirely in your browser. Your journal entries, conversations, and mood data are stored only on your device using localStorage. We have no servers collecting your information, no accounts to create, and no data being shared with third parties.
+            Dr. Mind runs entirely in your browser. Your journal entries, conversations, and mood data are stored only on your device using localStorage. We have no servers collecting your information, no accounts to create, and no data being shared with third parties.
           </p>
           <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-900/30">
             <div className="flex">
@@ -110,7 +110,7 @@ const About: React.FC = () => {
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-300 font-heading">Important Note</h3>
                 <p className="text-xs text-yellow-700 dark:text-yellow-400 mt-1">
-                  While Vihaara provides support for emotional well-being, it is not a substitute for professional mental health care. If you're experiencing a mental health crisis, please contact a healthcare professional.
+                  While Dr. Mind provides support for emotional well-being, it is not a substitute for professional mental health care. If you're experiencing a mental health crisis, please contact a healthcare professional.
                 </p>
               </div>
             </div>

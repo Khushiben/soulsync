@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { getMoodEntries, saveMoodEntry, getMoodInsights } from '@/lib/storage';
 import { MoodEntry, MoodType } from '@/types';
 import { formatDate } from '@/lib/utils';
 
+// Predefined mood options
 const MOODS: { type: MoodType; emoji: string; label: string }[] = [
   { type: 'amazing', emoji: '😁', label: 'Amazing' },
   { type: 'happy', emoji: '🙂', label: 'Happy' },
@@ -28,10 +29,11 @@ const Mood: React.FC = () => {
     loadMoodData();
   }, []);
 
+  // Load saved moods and fetch insights
   const loadMoodData = async () => {
     const entries = getMoodEntries();
     setMoodEntries(entries);
-    
+
     if (entries.length >= 3) {
       const moodInsights = await getMoodInsights(entries);
       setInsights(moodInsights);
@@ -50,35 +52,75 @@ const Mood: React.FC = () => {
       });
       return;
     }
-    
+
     const entry: MoodEntry = {
       id: Date.now().toString(),
       date: new Date().toISOString(),
       mood: selectedMood,
       context: context.trim() || null
     };
-    
+
     saveMoodEntry(entry);
     toast({
       description: "Your mood has been saved!",
     });
-    
-    // Reset form and reload data
+
+    // Reset and reload
     setSelectedMood(null);
     setContext('');
     loadMoodData();
   };
 
+  // 🎤 Speech-to-Text
+  const handleStartListening = () => {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast({
+        description: "Speech recognition not supported in this browser.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setContext(prev => prev ? prev + ' ' + transcript : transcript);
+    };
+
+    recognition.onerror = (event: any) => {
+      toast({
+        description: "Speech recognition error: " + event.error,
+        variant: "destructive"
+      });
+    };
+
+    recognition.start();
+  };
+
+  // 🔊 Text-to-Speech
+  const handleSpeakInsights = () => {
+    if (!insights) return;
+    const utterance = new SpeechSynthesisUtterance(insights);
+    utterance.lang = 'en-US';
+    speechSynthesis.speak(utterance);
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <h1 className="text-2xl md:text-3xl font-bold mb-6">Mood Tracker</h1>
-      
-      {/* Today's mood section */}
+
+      {/* Today's mood */}
       <Card className="mb-6">
         <CardContent className="p-6">
           <h2 className="text-lg font-semibold mb-4">How are you feeling today?</h2>
-          
-          {/* Mood selection grid */}
+
+          {/* Mood grid */}
           <div className="grid grid-cols-5 gap-2 mb-6">
             {MOODS.map(({ type, emoji, label }) => (
               <MoodEmoji
@@ -90,33 +132,35 @@ const Mood: React.FC = () => {
               />
             ))}
           </div>
-          
-          {/* Optional mood context */}
+
+          {/* Mood context with Speech Input */}
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">
               What's contributing to this feeling? (optional)
             </label>
-            <Input
-              placeholder="e.g., Work stress, Good news, etc."
-              value={context}
-              onChange={(e) => setContext(e.target.value)}
-            />
+            <div className="flex gap-2">
+              <Input
+                placeholder="e.g., Work stress, Good news, etc."
+                value={context}
+                onChange={(e) => setContext(e.target.value)}
+              />
+              <Button onClick={handleStartListening} variant="outline">
+                🎤
+              </Button>
+            </div>
           </div>
-          
-          <Button 
-            onClick={handleSaveMood} 
-            className="w-full"
-          >
+
+          <Button onClick={handleSaveMood} className="w-full">
             Save Today's Mood
           </Button>
         </CardContent>
       </Card>
-      
-      {/* Mood insights */}
+
+      {/* Insights */}
       <Card className="mb-6">
         <CardContent className="p-6">
           <h2 className="text-lg font-semibold mb-4">Your Mood Insights</h2>
-          
+
           {moodEntries.length < 3 ? (
             <div className="h-48 flex items-center justify-center bg-muted/20 rounded-lg">
               <div className="text-center">
@@ -131,19 +175,24 @@ const Mood: React.FC = () => {
               <div className="h-48 mb-6 bg-muted/20 rounded-lg flex items-center justify-center">
                 <p className="text-muted-foreground">Mood visualization will appear here</p>
               </div>
-              
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">AI Insights</h3>
-                <p className="text-blue-700 dark:text-blue-400 text-sm">{insights}</p>
+
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex justify-between items-start">
+                <div>
+                  <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">AI Insights</h3>
+                  <p className="text-blue-700 dark:text-blue-400 text-sm">{insights}</p>
+                </div>
+                <Button onClick={handleSpeakInsights} variant="ghost">
+                  🔊
+                </Button>
               </div>
             </>
           )}
         </CardContent>
       </Card>
-      
+
       {/* Mood history */}
       <h2 className="text-xl font-semibold mb-4">Recent Mood History</h2>
-      
+
       {moodEntries.length === 0 ? (
         <EmptyState
           icon="fas fa-smile"
@@ -154,8 +203,8 @@ const Mood: React.FC = () => {
         <Card>
           <div className="grid grid-cols-3 divide-x divide-border">
             {moodEntries.slice(0, 6).map((entry, index) => (
-              <div 
-                key={entry.id} 
+              <div
+                key={entry.id}
                 className={`p-4 text-center ${index < 3 ? 'border-b border-border' : ''}`}
               >
                 <p className="text-sm text-muted-foreground">
